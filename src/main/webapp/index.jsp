@@ -12,3 +12,5 @@
     <a href="Login.jsp">Go to Login Page</a>
 </body>
 </html>
+
+// index.jsp
