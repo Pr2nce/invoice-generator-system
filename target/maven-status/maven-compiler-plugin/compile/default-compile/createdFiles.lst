@@ -1,0 +1,10 @@
+Login.class
+FetchItemsServlet.class
+FetchUserHistoryServlet.class
+InvoiceItem.class
+AdminLogin.class
+Register.class
+Item.class
+UpdateItemsServlet.class
+OrderDetails.class
+PlaceOrderServlet.class

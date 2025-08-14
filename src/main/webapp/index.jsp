@@ -68,6 +68,13 @@
     .btn-guest:hover {
         background-color: #da190b;
     }
+    .btn-admin {
+        background-color: #ff9800;
+        color: white;
+    }
+    .btn-admin:hover {
+        background-color: #fb8c00;
+    }
 </style>
 </head>
 <body>
@@ -78,6 +85,7 @@
             <a href="Login.jsp" class="btn btn-login">Log In</a>
             <a href="Register.jsp" class="btn btn-register">Register</a>
             <a href="FetchItemsServlet" class="btn btn-guest">Continue as Guest</a>
+            <a href="AdminLogin.jsp" class="btn btn-admin">Admin Login</a>
         </div>
     </div>
 </body>
