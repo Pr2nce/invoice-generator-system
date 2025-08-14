@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet("/FetchItemsServlet")
 public class FetchItemsServlet extends HttpServlet {
@@ -20,32 +22,39 @@ public class FetchItemsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        try {
-            // Load the JDBC driver
-            Class.forName("com.mysql.cj.jdbc.Driver");
+        HttpSession session = request.getSession(false);
+        String username = null;
+        if (session != null && session.getAttribute("username") != null) {
+            username = (String) session.getAttribute("username");
+        } else {
+            // For guests, we can show a general message or an empty list
+            // For this implementation, we will show an empty list
+        }
 
-            // Establish a connection
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/javaProject",
                     "root", "prince");
 
-            // Fetch items from the database
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM items");
-
-            // Create a list to hold Item objects
             List<Item> items = new ArrayList<>();
-            while (resultSet.next()) {
-                Item item = new Item();
-                item.setName(resultSet.getString("itemName"));
-                item.setPrice(resultSet.getDouble("price"));
-                item.setAvailableQuantity(resultSet.getInt("availableQuantity"));
-                items.add(item);
+            if (username != null) {
+                // Fetch items for the logged-in user
+                String query = "SELECT * FROM user_items WHERE user_email = ?";
+                try (PreparedStatement ps = connection.prepareStatement(query)) {
+                    ps.setString(1, username);
+                    try (ResultSet resultSet = ps.executeQuery()) {
+                        while (resultSet.next()) {
+                            Item item = new Item();
+                            item.setName(resultSet.getString("itemName"));
+                            item.setPrice(resultSet.getDouble("price"));
+                            item.setAvailableQuantity(resultSet.getInt("availableQuantity"));
+                            items.add(item);
+                        }
+                    }
+                }
             }
-
-            // Set the list of items and other parameters as request attributes
-            request.setAttribute("items", items);
             
-            // Forward the request to your new JSP page
+            request.setAttribute("items", items);
             RequestDispatcher dispatcher = request.getRequestDispatcher("/items.jsp");
             dispatcher.forward(request, response);
 
